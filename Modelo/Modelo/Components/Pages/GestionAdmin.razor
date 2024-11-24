@@ -1,0 +1,126 @@
+﻿@page "/admin-habitaciones"
+@rendermode InteractiveServer
+@inject IHabitacionRepository HabitacionRepository
+
+<h3>Gestión de Habitaciones</h3>
+
+<EditForm Model="@habitacion" OnValidSubmit="GuardarHabitacion" FormName="habitacionForm">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="form-group">
+        <label for="numeroHabitacion">Número de Habitación:</label>
+        <InputText id="numeroHabitacion" @bind-Value="@habitacion.NumeroHabitacion" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label for="tipoHabitacion">Tipo de Habitación:</label>
+        <InputText id="tipoHabitacion" @bind-Value="@habitacion.TipoHabitacion" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label for="precioPorNoche">Precio por Noche:</label>
+        <InputNumber id="precioPorNoche" @bind-Value="@habitacion.PrecioPorNoche" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label for="estado">Estado:</label>
+        <InputText id="estado" @bind-Value="@habitacion.Estado" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label for="descripcion">Descripción:</label>
+        <InputTextArea id="descripcion" @bind-Value="@habitacion.Descripcion" class="form-control"></InputTextArea>
+    </div>
+
+    <!-- Nuevo campo para la URL de la imagen -->
+    <div class="form-group">
+        <label for="imagenUrl">URL de la Imagen:</label>
+        <InputText id="imagenUrl" @bind-Value="@habitacion.ImagenUrl" class="form-control" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">@accion</button>
+</EditForm>
+
+<h4>Lista de Habitaciones</h4>
+@if (habitaciones == null || !habitaciones.Any())
+{
+    <p>No hay habitaciones registradas.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Número</th>
+                <th>Tipo</th>
+                <th>Precio</th>
+                <th>Estado</th>
+                <th>Descripción</th>
+                <th>Imagen</th> <!-- Nueva columna para la imagen -->
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var hab in habitaciones)
+            {
+                <tr>
+                    <td>@hab.NumeroHabitacion</td>
+                    <td>@hab.TipoHabitacion</td>
+                    <td>@hab.PrecioPorNoche</td>
+                    <td>@hab.Estado</td>
+                    <td>@hab.Descripcion</td>
+                    <!-- Mostrar la imagen -->
+                    <td><img src="@hab.ImagenUrl" alt="Imagen de Habitación" style="width: 100px; height: auto;" /></td>
+                    <td>
+                        <button @onclick="@(() => EditarHabitacion(hab))" class="btn btn-warning">Editar</button>
+                        <button @onclick="@(() => EliminarHabitacion(hab.HabitacionId))" class="btn btn-danger">Eliminar</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<Habitacion> habitaciones; // Asegúrate de que esta variable esté declarada
+    private Habitacion habitacion = new Habitacion(); // Inicializa la variable habitacion
+    private string accion = "Agregar Habitación";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CargarHabitaciones();
+    }
+
+    private async Task CargarHabitaciones()
+    {
+        habitaciones = await HabitacionRepository.GetAllHabitaciones();
+    }
+
+    private async Task GuardarHabitacion()
+    {
+        if (habitacion.HabitacionId == 0) // Si es una nueva habitación
+        {
+            await HabitacionRepository.AddHabitacion(habitacion); // Asegúrate de usar el método correcto
+        }
+        else // Si estamos editando una habitación existente
+        {
+            await HabitacionRepository.UpdateHabitacion(habitacion);
+        }
+
+        habitacion = new Habitacion(); // Resetear el formulario
+        await CargarHabitaciones(); // Recargar la lista de habitaciones
+    }
+
+    private void EditarHabitacion(Habitacion hab)
+    {
+        habitacion = hab; // Cargar los datos de la habitación seleccionada en el formulario
+        accion = "Actualizar Habitación"; // Cambiar el texto del botón a "Actualizar"
+    }
+
+    private async Task EliminarHabitacion(int id)
+    {
+        await HabitacionRepository.DeleteHabitacion(id);
+        await CargarHabitaciones(); // Recargar la lista después de eliminar
+    }
+}

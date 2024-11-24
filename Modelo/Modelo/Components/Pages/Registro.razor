@@ -1,0 +1,67 @@
+﻿@page "/registro"
+@using Modelo.Repositorios
+@using Modelo.Modeloss
+@inject IClienteRepository ClienteRepository
+@inject NavigationManager Navigation
+
+<h3>Registro</h3>
+
+<EditForm Model="@cliente" OnValidSubmit="Registrar" FormName="registroForm">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="form-group">
+        <label for="nombre">Nombre:</label>
+        <InputText id="nombre" @bind-Value="@cliente.Nombre" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label for="apellidos">Apellidos:</label>
+        <InputText id="apellidos" @bind-Value="@cliente.Apellidos" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label for="telefono">Número de Teléfono:</label>
+        <InputText id="telefono" @bind-Value="@cliente.Telefono" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label for="correoElectronico">Correo Electrónico:</label>
+        <InputText id="correoElectronico" @bind-Value="@cliente.CorreoElectronico" type="email" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label for="nombreUsuario">Nombre de Usuario:</label>
+        <InputText id="nombreUsuario" @bind-Value="@cliente.NombreUsuario" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label for="contrasena">Contraseña:</label>
+        <InputText id="contrasena" @bind-Value="@cliente.Contrasena" type="password" class="form-control" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Registrar</button>
+</EditForm>
+
+<p>
+    ¿Ya tienes una cuenta?
+    <a href="/login">Inicia sesión aquí</a>
+</p>
+
+@code {
+    private Cliente cliente = new Cliente();
+
+    private async Task Registrar()
+    {
+        // Verificar si el usuario ya existe
+        if (await ClienteRepository.UsuarioExiste(cliente.NombreUsuario))
+        {
+            Console.WriteLine("El nombre de usuario ya está en uso.");
+            // Aquí puedes agregar un mensaje visual para el usuario.
+            return;
+        }
+
+        await ClienteRepository.Add(cliente); // Agregar el nuevo cliente a la base de datos
+        Navigation.NavigateTo("/login"); // Redirigir a la página de inicio de sesión después del registro
+    }
+}

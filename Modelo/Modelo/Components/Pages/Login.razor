@@ -1,0 +1,37 @@
+﻿@page "/"
+@rendermode InteractiveServer
+@inject NavigationManager Navigation
+
+<h3>Selecciona tu rol</h3>
+
+<div class="form-group">
+    <label for="rol">Selecciona tu rol:</label>
+    <select id="rol" @bind="rolSeleccionado" class="form-control">
+        <option value="">-- Selecciona un rol --</option>
+        <option value="admin">Admin</option>
+        <option value="usuario">Usuario</option>
+    </select>
+</div>
+
+<button class="btn btn-primary" @onclick="Acceder">Acceder</button>
+
+@code {
+    private string rolSeleccionado;
+
+    private void Acceder()
+    {
+        if (rolSeleccionado == "admin")
+        {
+            Navigation.NavigateTo("/admin-habitaciones"); // Redirigir a la página de administración
+        }
+        else if (rolSeleccionado == "usuario")
+        {
+            Navigation.NavigateTo("/habitaciones"); // Redirigir a la página de habitaciones
+        }
+        else
+        {
+            Console.WriteLine("Por favor selecciona un rol."); // Manejo de error simple
+                                                               // Aquí podrías mostrar un mensaje al usuario si lo deseas.
+        }
+    }
+}

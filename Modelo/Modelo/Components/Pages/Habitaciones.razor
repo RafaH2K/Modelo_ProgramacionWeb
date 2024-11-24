@@ -1,0 +1,49 @@
+﻿@page "/habitaciones"
+@inject IHabitacionRepository HabitacionRepository
+
+<h3>Lista de Habitaciones</h3>
+
+<div class="row">
+    @if (habitaciones == null || !habitaciones.Any())
+    {
+        <p>No hay habitaciones disponibles.</p>
+    }
+    else
+    {
+        @foreach (var habitacion in habitaciones)
+        {
+            <div class="col-md-4 mb-4">
+                <div class="card">
+                    <img src="@habitacion.ImagenUrl" class="card-img-top" alt="Imagen de Habitación" />
+                    <div class="card-body">
+                        <h5 class="card-title">Número de Habitación: @habitacion.NumeroHabitacion</h5>
+                        <h6 class="card-subtitle mb-2 text-muted">Tipo: @habitacion.TipoHabitacion</h6>
+                        <p class="card-text">
+                            <strong>Precio por Noche:</strong> @habitacion.PrecioPorNoche<br />
+                            <strong>Estado:</strong> @habitacion.Estado<br />
+                            <strong>Descripción:</strong> @habitacion.Descripcion<br />
+                            <strong>Disponible:</strong> @(habitacion.Disponible ? "Sí" : "No")
+                        </p>
+                        <button class="btn btn-primary" @onclick="@(() => ReservarHabitacion(habitacion))">Reservar</button>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+</div>
+
+@code {
+    private List<Habitacion> habitaciones;
+
+    protected override async Task OnInitializedAsync()
+    {
+        habitaciones = await HabitacionRepository.GetAllHabitaciones();
+    }
+
+    private void ReservarHabitacion(Habitacion habitacion)
+    {
+        // Lógica para reservar la habitación
+        Console.WriteLine($"Reserva realizada para la habitación: {habitacion.NumeroHabitacion}");
+        // Aquí puedes agregar lógica adicional, como redirigir a un formulario de reserva o mostrar un mensaje.
+    }
+}
